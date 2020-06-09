@@ -1,0 +1,170 @@
+<ion-header>
+	<ion-toolbar color="primary">
+		<ion-title>Reserve a Spot for Sunday!</ion-title>
+	</ion-toolbar>
+</ion-header>
+
+<ng-container [formGroup]="form">
+	<ion-content class="ion-padding">
+		<ion-slides #slides (ionSlideDidChange)="slideChanged()" scrollbar="false" pager="false">
+			<ion-slide>
+				<ion-grid>
+					<ion-row>
+						<ion-col size="12">
+							<ion-item lines="none">
+								<ion-label class="ion-text-wrap">
+									<ion-text color="dark">Please reserve your seat for every Sunday service you attend by filling out the form below. Reservations will be available at <a href="https://grace.church">www.grace.church</a> every Monday at 8a. If you are feeling any symptoms or have been exposed to COVID-19, please continue streaming at <a href="https://grace.live" target="_new">www.grace.live</a>.</ion-text>
+									<br />
+									<ion-text color="dark"><small><i>If you or a member of your family are signed up to volunteer for a service, you and your family already have spots reserved and do not need to fill out this form.</i></small></ion-text>
+								</ion-label>
+							</ion-item>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col size="12" sizeSm="6">
+							<ion-item>
+								<ion-label position="stacked">Name</ion-label>
+								<ion-input type="text" formControlName="Name"></ion-input>
+							</ion-item>
+						</ion-col>
+						<ion-col size="12" sizeSm="6">
+							<ion-item>
+								<ion-label position="stacked">Email</ion-label>
+								<ion-input type="text" formControlName="Email"></ion-input>
+							</ion-item>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col size="12" sizeSm="6">
+							<ion-item>
+								<ion-label position="stacked">Location</ion-label>
+								<ion-select formControlName="Campus" interface="popover" (ionChange)="resetServiceTime()">
+									<ion-select-option value="CH">Chaska</ion-select-option>
+									<ion-select-option value="EP">Eden Prairie</ion-select-option>
+								</ion-select>
+							</ion-item>
+						</ion-col>
+						<ion-col size="12" sizeSm="6">
+							<ion-item>
+								<ion-label position="stacked">Service Time</ion-label>
+								<ion-select formControlName="ServiceTime" interface="popover" (ionChange)="getCount()" [disabled]="!form.controls.Campus.dirty">
+									<ng-container *ngFor="let time of list | keyvalue">
+										<ion-select-option *ngIf="time.value.name.includes(this.form.value.Campus)" [disabled]="time.value.hidden" [value]="time.value">{{(time.value.hidden) ? '(Full) ' : ''}}{{time.value.time | date : 'EEE, MMM d'}} at {{time.value.time | date : 'h:mm a'}}</ion-select-option>
+									</ng-container>
+								</ion-select>
+							</ion-item>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col>
+							<ion-item lines="none">
+								<ion-label class="ion-text-wrap">A member of my party is hearing impaired.</ion-label>
+								<ion-checkbox color="primary" slot="start" formControlName="Hearing"></ion-checkbox>
+							</ion-item>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col size="12">
+							<mbsc-stepper formControlName="Count" color="secondary" min="1" [max]="maxSpots" [disabled]="!form.controls.Campus.dirty && !form.controls.ServiceTime.dirty" [options]="mbscOptions">
+								Number of people in your party?
+								<span class="mbsc-desc" *ngIf="!form.controls.Campus.dirty || !form.controls.ServiceTime.dirty">Please select a location and service time to see available spots.</span>
+								<span class="mbsc-desc" *ngIf="form.controls.Campus.dirty && form.controls.ServiceTime.dirty">{{(availableSpots.toString().includes('%')) ? 'Available Capacity:' : 'Available Spots:'}} {{availableSpots}}</span>
+							</mbsc-stepper>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col size="12">
+							<ion-item lines="none">
+								<ion-label class="ion-text-wrap">
+									<ion-text color="dark"><small><i>Notice: While Grace Church has been very careful to follow the CDC guidelines to provide a safe environment, we cannot guarantee you or those in your party will not contract COVID-19. Thank you for doing your part to help prevent the spread of coronavirus.</i></small></ion-text>
+								</ion-label>
+							</ion-item>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+			</ion-slide>
+
+			<ion-slide>
+				<div class="content" *ngIf="response">
+					<ion-list>
+						<ion-list-header lines="inset">
+							<ion-label><h1>Reservation Complete</h1></ion-label>
+						</ion-list-header>
+						<ion-item lines="none">
+							<ion-label class="ion-text-wrap">
+								Thanks for reserving a spot for a Sunday Service at Grace. Below are the details for the service you signed up for. You will also receive a copy of this via email.
+							</ion-label>
+						</ion-item>
+						<ion-item lines="none">
+							<ion-label class="ion-text-wrap">
+								<b>Please bring this QR code with you on either a mobile device or printed out for confirmation of your reservation.</b>
+							</ion-label>
+						</ion-item>
+						<ion-item lines="none">
+							<ion-label class="ion-text-wrap">
+								<p class="bold center">
+									<span>{{response.ServiceTime.time | date : 'EEEE, MMM d'}} at {{response.ServiceTime.time | date : 'h:mm a'}}</span>
+									<br />
+									<span>{{response.Campus}} Location</span>
+									<br />
+									<span>{{response.Count}} seat{{ (response.Count === 1) ? '' : 's' }} reserved</span>
+								</p>
+								<p class="image">
+									<img [src]="response.qrcode" />
+								</p>
+							</ion-label>
+						</ion-item>
+
+						<ion-list-header lines="inset">
+							<ion-label><h1>What to Expect</h1></ion-label>
+						</ion-list-header>
+						<ion-item lines="none">
+							<ion-label class="ion-text-wrap">
+								<div class="video-container">
+									<div class="video" #videoPlayer>
+										<media-player [options]="playerOptions"></media-player>
+									</div>
+								</div>
+							</ion-label>
+						</ion-item>
+						<ion-item lines="none">
+							<ion-label class="ion-text-wrap">
+								As we return to meeting publicly, there will be a lot of changes — so we ask for your <i><b>grace and space!</b></i> Please keep social distancing in mind at all times and maintain six feet between you and the next household. Below are several things to know before Sunday.
+							</ion-label>
+						</ion-item>
+						<ion-item lines="none">
+							<ion-label class="ion-text-wrap">
+								<ul>
+									<li>We anticipate lines that will extend outdoors, so please arrive early, be patient, and be prepared for any weather.</li>
+									<li>For the best seating, please enter through doors 2 and 3.</li>
+									<li>If you feel any symptoms after reserving your seat, please don’t hesitate to stay home and stream the service.</li>
+									<li>Masks are encouraged for all guests.</li>
+									<li>You will be ushered to a specific seat to maintain social distancing — which means you likely won’t sit in your “typical” seat — and the whole party must be present to seat.</li>
+									<li>You will be given instructions and ushered row by row when you exit worship.</li>
+									<li>There will be no food or beverage available. Please bring your coffee from home if you’d like!</li>
+									<li>Be prepared for limited capacity in the restrooms.</li>
+									<li>No H’s: hugging, hand-shaking, high-fiving, or handouts (If you’re looking for message notes, download the <a href="https://grace.church/app" target="_new">Grace Church app</a>!)</li>
+									<li>The chapel service has been moved to an online-only live stream.</li>
+									<li>Childcare has been suspended for the time being.</li>
+									<li>We will not pass the offering plate, but there will be offering stations. You can also give at <a href="https://grace.church/give" target="_new">grace.church/give</a> or in the app.</li>
+									<li>We love you, but please don’t linger. For now, take your social interactions to the parking lot so that we can prepare for the next service.</li>
+									<li>You can reserve your seat for next Sunday at <a href="https://grace.church/" target="_new">grace.church</a> on Monday at 8a!</li>
+								</ul>
+							</ion-label>
+						</ion-item>
+					</ion-list>
+				</div>
+			</ion-slide>
+		</ion-slides>
+	</ion-content>
+	<ion-footer class="ion-no-border" *ngIf="!response">
+		<ion-toolbar>
+			<ion-buttons slot="end">
+				<ion-button color="primary" fill="solid" (click)="confirmSelection()" *ngIf="!confirm">
+					Submit
+				</ion-button>
+				<ion-button color="secondary" fill="solid" (click)="submitForm()" *ngIf="confirm && !response">Confirm</ion-button>
+			</ion-buttons>
+		</ion-toolbar>
+	</ion-footer>
+</ng-container>

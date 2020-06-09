@@ -1,0 +1,62 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "~@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "~@ionic/angular/css/normalize.css";
+@import "~@ionic/angular/css/structure.css";
+@import "~@ionic/angular/css/typography.css";
+@import '~@ionic/angular/css/display.css';
+
+/* Optional CSS utils that can be commented out */
+@import "~@ionic/angular/css/padding.css";
+@import "~@ionic/angular/css/float-elements.css";
+@import "~@ionic/angular/css/text-alignment.css";
+@import "~@ionic/angular/css/text-transformation.css";
+@import "~@ionic/angular/css/flex-utils.css";
+
+$mbsc-mobiscroll-form-text: var(--ion-color-dark);
+
+@import "~@mobiscroll/angular-lite/dist/css/mobiscroll.scss";
+
+.mbsc-form, .mbsc-control-w, .mbsc-btn, .mbsc-segmented {
+	font-size: 16px !important;
+	@media (max-width: 576px) {
+		font-size: 14px !important;
+	}
+}
+
+body {
+	app-root {
+		ion-app {
+			ion-modal {
+				&.prompt-modal {
+					--width: 60%;
+					--height: 85%;
+				}
+				@media (max-width: 960px) {
+					&.prompt-modal {
+						--width: 80%;
+						--height: 85%;
+					}
+				}
+				@media (max-width: 768px) {
+					&.prompt-modal {
+						--width: 100%;
+						--height: 100%;
+					}
+				}
+			}
+		}
+	}
+}
